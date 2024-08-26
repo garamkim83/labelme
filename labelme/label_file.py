@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import os.path as osp
+import os
 import re
 
 import PIL.Image
@@ -166,7 +167,7 @@ class LabelFile(object):
         otherData=None,
         flags=None,
     ):
-        print("saving")
+        # print("saving")
 
         # 파일명에서 확장자 제거
         file_name_without_extension = osp.splitext(imagePath)[0]
@@ -218,8 +219,17 @@ class LabelFile(object):
         except Exception as e:
             raise LabelFileError(e)
 
+
         # Save in the new format!!!
-        new_filename = filename.replace(".json", "_new.json")
+        # {base_dir}_labeled 폴더 경로 생성
+        labeled_dir = osp.join(osp.dirname(osp.dirname(filename)), f"{base_dir}_labeled")
+        if not osp.exists(labeled_dir):
+            os.makedirs(labeled_dir)
+            
+        # 새로운 파일명 생성
+        new_filename = osp.join(labeled_dir, osp.basename(filename))
+            
+        #new_filename = filename.replace(".json", "_new.json")
 
         # Create new data dictionary with the specified format
         new_data = dict(
@@ -255,8 +265,16 @@ class LabelFile(object):
         except Exception as e:
             raise LabelFileError(e)
         
+
         # Save in the new format2!!!
-        new_filename2 = filename.replace(".json", "_new2.json")
+        # {base_dir}_labeled_formatted 폴더 경로 생성
+        labeled_formatted_dir = osp.join(osp.dirname(osp.dirname(filename)), f"{base_dir}_labeled_formatted")
+    
+        if not osp.exists(labeled_formatted_dir):
+            os.makedirs(labeled_formatted_dir)
+
+        new_filename2 = osp.join(labeled_formatted_dir, osp.basename(filename))
+        #new_filename2 = filename.replace(".json", "_new2.json")
         
         # Create new data dictionary with the specified format
         new_data2 = dict(
