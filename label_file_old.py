@@ -3,7 +3,6 @@ import contextlib
 import io
 import json
 import os.path as osp
-import re
 
 import PIL.Image
 
@@ -14,6 +13,7 @@ from labelme import utils
 from labelme.logger import logger
 
 PIL.Image.MAX_IMAGE_PIXELS = None
+
 
 @contextlib.contextmanager
 def open(name, mode):
@@ -26,8 +26,10 @@ def open(name, mode):
     yield io.open(name, mode, encoding=encoding)
     return
 
+
 class LabelFileError(Exception):
     pass
+
 
 class LabelFile(object):
     suffix = ".json"
@@ -72,9 +74,6 @@ class LabelFile(object):
             "flags",  # image level flags
             "imageHeight",
             "imageWidth",
-            "date",  # added for date
-            "latitude",  # added for latitude
-            "longitude",  # added for longitude
         ]
         shape_keys = [
             "label",
@@ -134,9 +133,6 @@ class LabelFile(object):
         self.imageData = imageData
         self.filename = filename
         self.otherData = otherData
-        self.date = data.get("date", None)
-        self.latitude = data.get("latitude", None)
-        self.longitude = data.get("longitude", None)
 
     @staticmethod
     def _check_image_height_and_width(imageData, imageHeight, imageWidth):
@@ -166,31 +162,6 @@ class LabelFile(object):
         otherData=None,
         flags=None,
     ):
-        print("saving")
-
-        # 파일명에서 확장자 제거
-        file_name_without_extension = osp.splitext(imagePath)[0]
-
-        # 상위 디렉토리와 파일명을 포함하여 위치 정보 추출
-        base_dir = osp.basename(osp.dirname(filename))
-        parts = file_name_without_extension.split('_')
-
-        try:
-            # 경도와 위도 추출
-            longitude = parts[-3]  # 경도
-            latitude = parts[-4]   # 위도
-            date_str = parts[-6]   # 날짜 (예: 2018.11)
-
-            # 날짜 문자열에서 연도와 월 분리
-            year, month = date_str.split('.')
-            date = {"year": year, "month": month}
-        except (IndexError, ValueError):
-            # 기본값 설정
-            date = {"year": "", "month": ""}
-            latitude = ""
-            longitude = ""
-
-        # Save in the original format
         if imageData is not None:
             imageData = base64.b64encode(imageData).decode("utf-8")
             imageHeight, imageWidth = self._check_image_height_and_width(
@@ -215,43 +186,7 @@ class LabelFile(object):
         try:
             with open(filename, "w") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            raise LabelFileError(e)
-
-        # Save in the new format
-        new_filename = filename.replace(".json", "_new.json")
-
-        # Create new data dictionary with the specified format
-        new_data = dict(
-            version=__version__,
-            flags=flags,
-            shapes=[
-                {
-                    "points": shape.get("points"),
-                    "shape_type": shape.get("shape_type"),
-                    "class": shape.get("label"),  # 기존 'label'의 value를 'class'로 저장
-                    "location_id": f"id_{base_dir}_{shape.get('group_id', 'unknown')}"  # 'group_id'가 없으면 'unknown' 사용
-                }
-                for shape in shapes
-            ],
-            imagePath=imagePath,
-            imageData=imageData if imageData else "",
-            imageHeight=imageHeight,
-            imageWidth=imageWidth,
-            date=date,
-            latitude=latitude,
-            longitude=longitude,
-        )
-
-        # Add any additional data from otherData
-        for key, value in otherData.items():
-            assert key not in new_data
-            new_data[key] = value
-
-        try:
-            with open(new_filename, "w") as f:
-                json.dump(new_data, f, ensure_ascii=False, indent=2)
-                print(f"Saving JSON file to: {new_filename}")
+            self.filename = filename
         except Exception as e:
             raise LabelFileError(e)
 
