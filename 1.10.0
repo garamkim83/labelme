@@ -1,0 +1,9 @@
+Collecting onnxruntime
+  Downloading onnxruntime-1.10.0-cp36-cp36m-win_amd64.whl (5.2 MB)
+Requirement already satisfied: numpy>=1.16.6 in c:\users\garam\anaconda3\envs\labelme2\lib\site-packages (from onnxruntime) (1.19.5)
+Collecting protobuf
+  Downloading protobuf-3.19.6-cp36-cp36m-win_amd64.whl (897 kB)
+Collecting flatbuffers
+  Downloading flatbuffers-24.3.25-py2.py3-none-any.whl (26 kB)
+Installing collected packages: protobuf, flatbuffers, onnxruntime
+Successfully installed flatbuffers-24.3.25 onnxruntime-1.10.0 protobuf-3.19.6
