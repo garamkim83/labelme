@@ -190,7 +190,7 @@ class LabelFile(object):
             latitude = ""
             longitude = ""
 
-        # Save in the original format
+        # Save in the original format!!!
         if imageData is not None:
             imageData = base64.b64encode(imageData).decode("utf-8")
             imageHeight, imageWidth = self._check_image_height_and_width(
@@ -218,7 +218,7 @@ class LabelFile(object):
         except Exception as e:
             raise LabelFileError(e)
 
-        # Save in the new format
+        # Save in the new format!!!
         new_filename = filename.replace(".json", "_new.json")
 
         # Create new data dictionary with the specified format
@@ -230,7 +230,7 @@ class LabelFile(object):
                     "points": shape.get("points"),
                     "shape_type": shape.get("shape_type"),
                     "class": shape.get("label"),  # 기존 'label'의 value를 'class'로 저장
-                    "location_id": f"id_{base_dir}_{shape.get('group_id', 'unknown')}"  # 'group_id'가 없으면 'unknown' 사용
+                    "location_id": f"id_{base_dir}_{str(shape.get('group_id', 'unknown')).zfill(3)}"
                 }
                 for shape in shapes
             ],
@@ -252,6 +252,42 @@ class LabelFile(object):
             with open(new_filename, "w") as f:
                 json.dump(new_data, f, ensure_ascii=False, indent=2)
                 print(f"Saving JSON file to: {new_filename}")
+        except Exception as e:
+            raise LabelFileError(e)
+        
+        # Save in the new format2!!!
+        new_filename2 = filename.replace(".json", "_new2.json")
+        
+        # Create new data dictionary with the specified format
+        new_data2 = dict(
+            version=__version__,
+            flags=flags,
+            shapes=[
+                {
+                    "label": shape.get("label"),  # 기존 'label'의 value를 'class'로 저장
+                    "points": shape.get("points"),
+                    "group_id": shape.get("group_id", "unknown"),  # 'group_id'가 없으면 'unknown' 사용
+                    "description": shape.get("description", ""),
+                    "shape_type": shape.get("shape_type"),
+                    "flags": shape.get("flags", {}),
+                }
+                for shape in shapes
+            ],
+            imagePath=imagePath,
+            imageData=imageData if imageData else "",
+            imageHeight=imageHeight,
+            imageWidth=imageWidth,
+        )
+        
+        # Add any additional data from otherData
+        for key, value in otherData.items():
+            assert key not in new_data2
+            new_data2[key] = value
+
+        try:
+            with open(new_filename2, "w") as f:
+                json.dump(new_data2, f, ensure_ascii=False, indent=2)
+                print(f"Saving JSON file to: {new_filename2}")
         except Exception as e:
             raise LabelFileError(e)
 
