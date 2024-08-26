@@ -222,7 +222,7 @@ class LabelFile(object):
 
         # Save in the new format!!!
         # {base_dir}_labeled 폴더 경로 생성
-        labeled_dir = osp.join(osp.dirname(osp.dirname(filename)), f"{base_dir}_labeled")
+        labeled_dir = osp.join(osp.dirname(osp.dirname(filename)), f"{base_dir}_labeled_formatted")
         if not osp.exists(labeled_dir):
             os.makedirs(labeled_dir)
             
@@ -268,7 +268,7 @@ class LabelFile(object):
 
         # Save in the new format2!!!
         # {base_dir}_labeled_formatted 폴더 경로 생성
-        labeled_formatted_dir = osp.join(osp.dirname(osp.dirname(filename)), f"{base_dir}_labeled_formatted")
+        labeled_formatted_dir = osp.join(osp.dirname(osp.dirname(filename)), f"{base_dir}_labeled")
     
         if not osp.exists(labeled_formatted_dir):
             os.makedirs(labeled_formatted_dir)
